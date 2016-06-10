@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	"local/sfs/crypt"
+	"local/sfs/storage"
 
 	"github.com/spf13/cobra"
 )
@@ -18,28 +20,65 @@ var cmdFile = &cobra.Command{
 }
 
 func fileRun(cmd *cobra.Command, args []string) {
-	orgFileName := args[0]
-	originalFile, err := ioutil.ReadFile(orgFileName)
+	var wg sync.WaitGroup
+	for _, file := range args {
+		wg.Add(1)
+		if d, _ := cmd.Flags().GetBool("d"); d {
+			go processDecryptFile(file, &wg)
+		} else {
+			go processCryptFile(file, &wg)
+		}
+	}
+	wg.Wait()
+}
+
+func init() {
+	cmdFile.Flags().Bool("d", true, "sfs file -d myfile")
+	RootCmd.AddCommand(cmdFile)
+}
+
+func processCryptFile(filename string, wg *sync.WaitGroup) {
+	file, err := os.Open(filename)
+	if err != nil || file == nil {
+		panic(err)
+	}
+	defer file.Close()
+	key := crypt.GenerateKey(32)
+	meta, err := storage.NewMeta(key, file)
 	if err != nil {
 		panic(err)
 	}
 
-	key := crypt.GenerateKey(32)
-	cryptName := crypt.EncryptStrBase64(key, orgFileName)
+	var data = make([]byte, meta.Length)
+	_, err = file.Read(data)
+	if err != nil {
+		panic(err)
+	}
 
-	cryptoFile := crypt.EncryptByte(key, originalFile)
+	cryptoFile := crypt.EncryptByte(key, data)
 	if cryptoFile != nil {
-		fmt.Println("Encryption successful !")
+		fmt.Printf("[+] %s Encrypted successfuly !\n", meta.OriginalName)
 	}
-	ioutil.WriteFile(cryptName, cryptoFile, os.ModePerm)
+	ioutil.WriteFile(meta.EncodeName, cryptoFile, os.ModePerm)
 
-	file := crypt.DecryptByte(key, cryptoFile)
-	ioutil.WriteFile("decrypt.jpg", file, os.ModePerm)
-	if string(file) == string(originalFile) {
-		fmt.Println("Decyphering successful !")
-	}
+	wg.Done()
 }
 
-func init() {
-	RootCmd.AddCommand(cmdFile)
+func processDecryptFile(filename string, wg *sync.WaitGroup) {
+	var key []byte
+	file, err := os.Open(filename)
+	if err != nil || file == nil {
+		panic(err)
+	}
+	defer file.Close()
+	var data = make([]byte, 256)
+	_, err = file.Read(data)
+	if err != nil {
+		panic(err)
+	}
+	restFile := crypt.DecryptByte(key, data)
+	ioutil.WriteFile(crypt.DecryptStrBase64(key, file.Name()), restFile, os.ModePerm)
+	if string(data) == string(restFile) {
+		fmt.Println("Decyphering successful !")
+	}
 }
