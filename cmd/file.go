@@ -12,29 +12,41 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cmdFile = &cobra.Command{
-	Use:   "file [path to file]",
+var cryptCmd = &cobra.Command{
+	Use:   "crypt [path to file]",
 	Short: "The path to your file",
 	Long:  `Write the path of the file you want to encrypt.`,
-	Run:   fileRun,
+	Run:   cryptRun,
 }
 
-func fileRun(cmd *cobra.Command, args []string) {
+func cryptRun(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 	for _, file := range args {
 		wg.Add(1)
-		if d, _ := cmd.Flags().GetBool("d"); d {
-			go processDecryptFile(file, &wg)
-		} else {
-			go processCryptFile(file, &wg)
-		}
+		go processCryptFile(file, &wg)
+	}
+	wg.Wait()
+}
+
+var decryptCmd = &cobra.Command{
+	Use:   "decrypt [path to file]",
+	Short: "The path to your file",
+	Long:  `Write the path of the file you want to decrypt.`,
+	Run:   decryptRun,
+}
+
+func decryptRun(cmd *cobra.Command, args []string) {
+	var wg sync.WaitGroup
+	for _, file := range args {
+		wg.Add(1)
+		go processDecryptFile(file, &wg)
 	}
 	wg.Wait()
 }
 
 func init() {
-	cmdFile.Flags().Bool("d", true, "sfs file -d myfile")
-	RootCmd.AddCommand(cmdFile)
+	RootCmd.AddCommand(cryptCmd)
+	RootCmd.AddCommand(decryptCmd)
 }
 
 func processCryptFile(filename string, wg *sync.WaitGroup) {
@@ -59,8 +71,15 @@ func processCryptFile(filename string, wg *sync.WaitGroup) {
 	if cryptoFile != nil {
 		fmt.Printf("[+] %s Encrypted successfuly !\n", meta.OriginalName)
 	}
-	ioutil.WriteFile(meta.EncodeName, cryptoFile, os.ModePerm)
+	err = ioutil.WriteFile(meta.EncodeName, cryptoFile, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 
+	err = os.Remove(filename)
+	if err != nil {
+		panic(err)
+	}
 	wg.Done()
 }
 
@@ -90,5 +109,9 @@ func processDecryptFile(filename string, wg *sync.WaitGroup) {
 	}
 
 	fmt.Println("Decyphering successful !")
+	err = os.Remove(filename)
+	if err != nil {
+		panic(err)
+	}
 	wg.Done()
 }
