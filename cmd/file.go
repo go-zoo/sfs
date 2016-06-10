@@ -12,25 +12,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	RootCmd.AddCommand(cryptCmd)
+	RootCmd.AddCommand(decryptCmd)
+}
+
 var cryptCmd = &cobra.Command{
 	Use:   "crypt [path to file]",
-	Short: "The path to your file",
+	Short: "Encrypt the provided files",
 	Long:  `Write the path of the file you want to encrypt.`,
 	Run:   cryptRun,
 }
 
 func cryptRun(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
-	for _, file := range args {
-		wg.Add(1)
-		go processCryptFile(file, &wg)
+	if len(args) > 0 {
+		for _, file := range args {
+			wg.Add(1)
+			go processCryptFile(file, &wg)
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 }
 
 var decryptCmd = &cobra.Command{
 	Use:   "decrypt [path to file]",
-	Short: "The path to your file",
+	Short: "Decrypt your files",
 	Long:  `Write the path of the file you want to decrypt.`,
 	Run:   decryptRun,
 }
@@ -44,18 +51,13 @@ func decryptRun(cmd *cobra.Command, args []string) {
 	wg.Wait()
 }
 
-func init() {
-	RootCmd.AddCommand(cryptCmd)
-	RootCmd.AddCommand(decryptCmd)
-}
-
 func processCryptFile(filename string, wg *sync.WaitGroup) {
 	file, err := os.Open(filename)
 	if err != nil || file == nil {
 		panic(err)
 	}
 	defer file.Close()
-	key := crypt.GenerateKey(32)
+	key := crypt.GenerateKey(16)
 	meta, err := storage.NewMeta(key, file)
 	if err != nil {
 		panic(err)

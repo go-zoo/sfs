@@ -8,8 +8,11 @@ import (
 	"os"
 
 	"local/sfs/crypt"
+
+	"github.com/kardianos/osext"
 )
 
+// Meta store informations about a file
 type Meta struct {
 	OriginalName string   `json:"orgname"`
 	EncodeName   string   `json:"encname"`
@@ -19,25 +22,33 @@ type Meta struct {
 	StorePath    string   `json:"store"`
 }
 
-var Metas map[string]Meta
+var conf string
+var metas map[string]Meta
 
 func init() {
-	Metas = make(map[string]Meta)
-	data, err := ioutil.ReadFile("sfs.conf")
+	exp, err := osext.ExecutableFolder()
+	if err != nil {
+		panic(err)
+	}
+	conf = exp + "/sfs.conf"
+
+	metas = make(map[string]Meta)
+	data, err := ioutil.ReadFile(conf)
 	if err != nil {
 		d, _ := json.Marshal(make(map[string]interface{}))
-		err = ioutil.WriteFile("sfs.conf", d, os.ModePerm)
+		err = ioutil.WriteFile(conf, d, os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		err = json.Unmarshal(data, &Metas)
+		err = json.Unmarshal(data, &metas)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
+// NewMeta generate a Meta struct base on the file
 func NewMeta(key []byte, file *os.File) (Meta, error) {
 	fileStat, err := file.Stat()
 	if err != nil || fileStat.Size() == 0 {
@@ -51,25 +62,27 @@ func NewMeta(key []byte, file *os.File) (Meta, error) {
 		Platform:     Platform{},
 		StorePath:    "",
 	}
-	Metas[m.EncodeName] = m
+	metas[m.EncodeName] = m
 	writeConf()
 	return m, nil
 }
 
+// FindMeta retrieve Meta info from the sfs.conf file
 func FindMeta(encodeName string) (Meta, error) {
-	if Metas[encodeName].EncodeName != "" {
-		fmt.Println(Metas[encodeName].OriginalName)
-		return Metas[encodeName], nil
+	if metas[encodeName].EncodeName != "" {
+		fmt.Println(metas[encodeName].OriginalName)
+		return metas[encodeName], nil
 	}
 	return Meta{}, errors.New("Meta not found")
 }
 
 func writeConf() {
-	data, err := json.MarshalIndent(Metas, "", "  ")
+	data, err := json.MarshalIndent(metas, "", "  ")
 	if err != nil {
 		panic(err)
 	}
-	ioutil.WriteFile("sfs.conf", data, os.ModePerm)
+	ioutil.WriteFile(conf, data, os.ModePerm)
 }
 
+// Platform is not implemented
 type Platform struct{}
