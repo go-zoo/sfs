@@ -25,7 +25,7 @@ func fileRun(cmd *cobra.Command, args []string) {
 	}
 
 	key := crypt.GenerateKey(32)
-	cryptName := "encrypt.bin"
+	cryptName := crypt.EncryptStrBase64(key, orgFileName)
 
 	cryptoFile := crypt.EncryptByte(key, originalFile)
 	if cryptoFile != nil {
