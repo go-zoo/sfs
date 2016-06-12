@@ -1,6 +1,7 @@
 package crypt
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -12,6 +13,8 @@ func EncryptByte(key []byte, data []byte) []byte {
 	if err != nil {
 		panic(err)
 	}
+
+	data = padding(data, aes.BlockSize)
 
 	ciphertext := make([]byte, aes.BlockSize+len(data))
 	iv := ciphertext[:aes.BlockSize]
@@ -25,21 +28,29 @@ func EncryptByte(key []byte, data []byte) []byte {
 	return ciphertext
 }
 
+func padding(src []byte, bs int) []byte {
+	pad := bs - len(src)%bs
+	padsrc := bytes.Repeat([]byte{byte(pad)}, pad)
+	return append(src, padsrc...)
+}
+
+func unpadding(src []byte) []byte {
+	length := len(src)
+	unpad := int(src[length-1])
+	return src[:(length - unpad)]
+}
+
 func DecryptByte(key []byte, ciphertext []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
 
-	if len(ciphertext) < aes.BlockSize {
-		panic("ciphertext too short")
-	}
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
 
 	stream := cipher.NewCFBDecrypter(block, iv)
-
 	stream.XORKeyStream(ciphertext, ciphertext)
 
-	return ciphertext
+	return unpadding(ciphertext)
 }

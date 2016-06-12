@@ -56,7 +56,13 @@ func processCryptFile(filename string, wg *sync.WaitGroup) {
 	if err != nil || file == nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func() {
+		file.Close()
+		err = os.Remove(filename)
+		if err != nil {
+			panic(err)
+		}
+	}()
 	key := crypt.GenerateKey(16)
 	meta, err := storage.NewMeta(key, file)
 	if err != nil {
@@ -78,10 +84,6 @@ func processCryptFile(filename string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	err = os.Remove(filename)
-	if err != nil {
-		panic(err)
-	}
 	wg.Done()
 }
 
@@ -90,19 +92,25 @@ func processDecryptFile(filename string, wg *sync.WaitGroup) {
 	if err != nil || file == nil {
 		panic(err)
 	}
-	defer file.Close()
+	fs, _ := file.Stat()
+	defer func() {
+		file.Close()
+		err = os.Remove(filename)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	meta, err := storage.FindMeta(filename)
 	if err != nil {
 		panic(err)
 	}
 
-	var data = make([]byte, meta.Length)
+	var data = make([]byte, fs.Size())
 	_, err = file.Read(data)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("Data Size:", len(data))
 
 	restFile := crypt.DecryptByte(meta.Key, data)
 	err = ioutil.WriteFile(meta.OriginalName, restFile, os.ModePerm)
@@ -111,9 +119,6 @@ func processDecryptFile(filename string, wg *sync.WaitGroup) {
 	}
 
 	fmt.Println("Decyphering successful !")
-	err = os.Remove(filename)
-	if err != nil {
-		panic(err)
-	}
+
 	wg.Done()
 }
