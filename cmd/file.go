@@ -13,18 +13,18 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(cryptCmd)
+	RootCmd.AddCommand(encryptCmd)
 	RootCmd.AddCommand(decryptCmd)
 }
 
-var cryptCmd = &cobra.Command{
-	Use:   "crypt [path to file]",
+var encryptCmd = &cobra.Command{
+	Use:   "encrypt [path to file]",
 	Short: "Encrypt the provided files",
 	Long:  `Write the path of the file you want to encrypt.`,
-	Run:   cryptRun,
+	Run:   encryptRun,
 }
 
-func cryptRun(cmd *cobra.Command, args []string) {
+func encryptRun(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 	if len(args) > 0 {
 		for _, file := range args {
