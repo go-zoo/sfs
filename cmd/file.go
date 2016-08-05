@@ -6,8 +6,8 @@ import (
 	"os"
 	"sync"
 
-	"local/sfs/crypt"
-	"local/sfs/storage"
+	"github.com/go-zoo/sfs/crypt"
+	"github.com/go-zoo/sfs/storage"
 
 	"github.com/spf13/cobra"
 )
@@ -118,7 +118,12 @@ func processDecryptFile(filename string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	fmt.Println("Decyphering successful !")
+	fmt.Println("[+] Decyphering successful !")
+
+	err = storage.DeleteMeta(filename)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	wg.Done()
 }

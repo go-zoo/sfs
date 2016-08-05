@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"local/sfs/crypt"
+	"github.com/go-zoo/sfs/crypt"
 
 	"github.com/kardianos/osext"
 )
@@ -74,6 +74,15 @@ func FindMeta(encodeName string) (Meta, error) {
 		return metas[encodeName], nil
 	}
 	return Meta{}, errors.New("Meta not found")
+}
+
+// DeleteMeta remove old encryption data
+func DeleteMeta(encodeName string) error {
+	if metas[encodeName].EncodeName != "" {
+		delete(metas, metas[encodeName].EncodeName)
+		return nil
+	}
+	return errors.New("Meta not found")
 }
 
 func writeConf() {

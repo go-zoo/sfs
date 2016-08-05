@@ -9,7 +9,7 @@ var RootCmd = &cobra.Command{
 	Long: `
     Safe File Storage is a tool to easily
     encrypt and store data
-    in cloud platform (Google Drive, One Drive, etc ...)`,
+    in cloud platforms (Google Drive, One Drive, etc ...)`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 	},

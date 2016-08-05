@@ -1,7 +1,7 @@
 package main
 
 import (
-	"local/sfs/cmd"
+	"github.com/go-zoo/sfs/cmd"
 )
 
 func main() {
