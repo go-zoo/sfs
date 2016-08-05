@@ -14,12 +14,12 @@ import (
 
 // Meta store informations about a file
 type Meta struct {
-	OriginalName string   `json:"orgname"`
-	EncodeName   string   `json:"encname"`
-	Length       int64    `json:"length"`
-	Key          []byte   `json:"key"`
-	Platform     Platform `json:"platform"`
-	StorePath    string   `json:"store"`
+	OriginalName string     `json:"orgname"`
+	EncodeName   string     `json:"encname"`
+	Length       int64      `json:"length"`
+	Key          []byte     `json:"key"`
+	Platform     []Platform `json:"platform"`
+	StorePath    string     `json:"store"`
 }
 
 var conf string
@@ -59,12 +59,20 @@ func NewMeta(key []byte, file *os.File) (Meta, error) {
 		EncodeName:   crypt.EncryptStrBase64(key, file.Name()),
 		Length:       fileStat.Size(),
 		Key:          key,
-		Platform:     Platform{},
+		Platform:     []Platform{},
 		StorePath:    "",
 	}
 	metas[m.EncodeName] = m
 	writeConf()
 	return m, nil
+}
+
+// PrintMeta pretty print a file info
+func (m *Meta) PrintMeta() {
+	fmt.Printf("# Filename : %s\n", m.OriginalName)
+	fmt.Printf("# Encoded Name : %s\n", m.EncodeName)
+	fmt.Printf("# Size : %d\n", m.Length)
+	//fmt.Println("# Platform : %s", "")
 }
 
 // FindMeta retrieve Meta info from the sfs.conf file
@@ -80,6 +88,7 @@ func FindMeta(encodeName string) (Meta, error) {
 func DeleteMeta(encodeName string) error {
 	if metas[encodeName].EncodeName != "" {
 		delete(metas, metas[encodeName].EncodeName)
+		writeConf()
 		return nil
 	}
 	return errors.New("Meta not found")
