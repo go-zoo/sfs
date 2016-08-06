@@ -82,7 +82,6 @@ func (m *Meta) PrintMeta() {
 	fmt.Printf("# Filename : %s\n", m.OriginalName)
 	fmt.Printf("# Encoded Name : %s\n", m.EncodeName)
 	fmt.Printf("# Size : %d\n", m.Length)
-	//fmt.Println("# Platform : %s", "")
 }
 
 // FindMeta retrieve Meta info from the sfs.conf file
@@ -99,7 +98,6 @@ func DeleteMeta(encodeName string) error {
 	if metas.m[encodeName].EncodeName != "" {
 		delete(metas.m, metas.m[encodeName].EncodeName)
 		metas.Unlock()
-		writeConf()
 		return nil
 	}
 	return errors.New("Meta not found")
