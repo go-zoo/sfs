@@ -37,7 +37,7 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	cryptoFile := crypt.EncryptByte(key, data)
+	cryptoFile := crypt.EncodeWithMaster(key, data)
 	if cryptoFile != nil {
 		ss := strings.Split(meta.OriginalName, "/")
 		fmt.Printf("[+] %s Encrypted successfuly !\n", ss[len(ss)-1])
@@ -82,7 +82,7 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	restFile := crypt.DecryptByte(meta.Key, data)
+	restFile := crypt.DecodeWithMaster(meta.Key, data)
 	err = ioutil.WriteFile(meta.OriginalName, restFile, os.FileMode(meta.FileMode))
 	if err != nil {
 		panic(err)
