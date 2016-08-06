@@ -25,7 +25,11 @@ func init() {
 
 func Add(key []byte, value []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
-		return tx.Bucket([]byte("meta")).Put(key, value)
+		b, err := tx.CreateBucketIfNotExists([]byte("meta"))
+		if err != nil {
+			return err
+		}
+		return b.Put(key, value)
 	})
 
 	return err

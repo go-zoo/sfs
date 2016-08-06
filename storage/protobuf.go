@@ -28,7 +28,7 @@ func ReadFromDb(key string) (proto.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	var meta *pb.Meta
+	meta := &pb.Meta{}
 	err = proto.Unmarshal(data, meta)
 	if err != nil {
 		return nil, err
