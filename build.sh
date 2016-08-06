@@ -1,5 +1,6 @@
 export SFSMASTERKEY="oskdghetyahsgdte"
 
+rm sfs.dat
 rm -rf test
 
 mkdir test

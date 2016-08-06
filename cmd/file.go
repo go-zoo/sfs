@@ -11,12 +11,12 @@ import (
 )
 
 func init() {
-	RootCmd.AddCommand(encryptCmd)
-	RootCmd.AddCommand(decryptCmd)
+	RootCmd.AddCommand(encodeCmd)
+	RootCmd.AddCommand(decodeCmd)
 }
 
-var encryptCmd = &cobra.Command{
-	Use:   "encrypt [path to file]",
+var encodeCmd = &cobra.Command{
+	Use:   "encode [path to file]",
 	Short: "Encrypt the provided files",
 	Long:  `Write the path of the file you want to encrypt.`,
 	Run:   encryptRun,
@@ -38,8 +38,8 @@ func encryptRun(cmd *cobra.Command, args []string) {
 	}
 }
 
-var decryptCmd = &cobra.Command{
-	Use:   "decrypt [path to file]",
+var decodeCmd = &cobra.Command{
+	Use:   "decode [path to file]",
 	Short: "Decrypt your files",
 	Long:  `Write the path of the file you want to decrypt.`,
 	Run:   decryptRun,

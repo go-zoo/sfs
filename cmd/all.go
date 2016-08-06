@@ -13,8 +13,8 @@ import (
 type fileProcessor func(string, string, *sync.WaitGroup)
 
 func init() {
-	encryptCmd.AddCommand(encryptAllCmd)
-	decryptCmd.AddCommand(decryptAllCmd)
+	encodeCmd.AddCommand(encryptAllCmd)
+	decodeCmd.AddCommand(decryptAllCmd)
 }
 
 var encryptAllCmd = &cobra.Command{

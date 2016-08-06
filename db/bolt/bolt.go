@@ -35,6 +35,17 @@ func Add(key []byte, value []byte) error {
 	return err
 }
 
+func Del(key []byte) error {
+	err := db.Update(func(tx *bolt.Tx) error {
+		err := tx.Bucket([]byte("meta")).Delete(key)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
 func Get(key []byte) ([]byte, error) {
 	var data []byte
 	err := db.Update(func(tx *bolt.Tx) error {

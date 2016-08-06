@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/go-zoo/sfs/crypt"
@@ -24,7 +25,7 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 			panic(err)
 		}
 	}()
-	key := crypt.GenerateKey(16)
+	key := crypt.GenerateKey(32)
 	meta, err := storage.NewMeta(key, file)
 	if err != nil {
 		panic(err)
@@ -38,7 +39,8 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 
 	cryptoFile := crypt.EncryptByte(key, data)
 	if cryptoFile != nil {
-		fmt.Printf("[+] %s Encrypted successfuly !\n", meta.OriginalName)
+		ss := strings.Split(meta.OriginalName, "/")
+		fmt.Printf("[+] %s Encrypted successfuly !\n", ss[len(ss)-1])
 	}
 	err = ioutil.WriteFile(path+"/"+meta.EncodeName, cryptoFile, os.ModePerm)
 	if err != nil {
@@ -60,7 +62,9 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	fs, _ := file.Stat()
 	meta, err := storage.FindMeta(filename)
 	if err != nil {
-		panic(err)
+		fmt.Printf("[!] %s doesn't seems to exists or be encrypted\n", fs.Name())
+		wg.Done()
+		return
 	}
 
 	defer func() {
@@ -69,6 +73,7 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 		if err != nil {
 			panic(err)
 		}
+		wg.Done()
 	}()
 
 	var data = make([]byte, fs.Size())
@@ -82,13 +87,11 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	if err != nil {
 		panic(err)
 	}
+	ss := strings.Split(meta.OriginalName, "/")
+	fmt.Printf("[+] Decrypted %s successfuly !\n", ss[len(ss)-1])
 
-	fmt.Printf("[+] Decrypted %s successfuly !\n", meta.OriginalName)
-
-	// err = storage.DeleteMeta(filename)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	wg.Done()
+	err = storage.DeleteMeta(filename)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

@@ -37,7 +37,7 @@ func NewMeta(key []byte, file *os.File) (pb.Meta, error) {
 		StorePath: "",
 	}
 
-	return m, SaveToDb(m.EncodeName, &m)
+	return m, WriteToDb(m.EncodeName, &m)
 }
 
 // PrintMeta pretty print a file info
@@ -57,9 +57,9 @@ func FindMeta(encodeName string) (*pb.Meta, error) {
 }
 
 // DeleteMeta remove old encryption data
-// func DeleteMeta(encodeName string) error {
-//
-// }
+func DeleteMeta(encodeName string) error {
+	return DelFromDb(encodeName)
+}
 
 // Platform is not implemented
 type Platform struct{}

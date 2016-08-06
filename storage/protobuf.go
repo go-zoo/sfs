@@ -10,7 +10,7 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func ReadProtoFile(filename string) (*pb.Meta, error) {
+func ReadFromFile(filename string) (*pb.Meta, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func ReadFromDb(key string) (proto.Message, error) {
 	return meta, nil
 }
 
-func WriteProtoFile(pbm proto.Message, filename string) error {
+func WriteToFile(pbm proto.Message, filename string) error {
 	data, err := proto.Marshal(pbm)
 	if err != nil {
 		return err
@@ -51,11 +51,15 @@ func WriteProtoFile(pbm proto.Message, filename string) error {
 	return nil
 }
 
-func SaveToDb(key string, pbm proto.Message) error {
+func WriteToDb(key string, pbm proto.Message) error {
 	data, err := proto.Marshal(pbm)
 	if err != nil {
 		return err
 	}
 	//data = crypt.EncryptByte(crypt.MasterKey, data)
 	return bolt.Add([]byte(key), data)
+}
+
+func DelFromDb(key string) error {
+	return bolt.Del([]byte(key))
 }

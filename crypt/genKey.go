@@ -1,15 +1,20 @@
 package crypt
 
-import (
-	"crypto/rand"
-	"os"
-)
+import "crypto/rand"
 
-var MasterKey []byte
-
-func init() {
-	MasterKey = []byte(os.Getenv("SFSMASTERKEY"))
-}
+// var MasterKey []byte
+//
+// func init() {
+// 	mk := os.Getenv("SFSMASTERKEY")
+// 	if mk != "" {
+// 		MasterKey = []byte(mk)
+// 		return
+// 	}
+// 	MasterKey = GenerateKey(32)
+// 	fmt.Println("[!] MasterKey not found !")
+// 	fmt.Println("[!] SFS have generated one for you.")
+// 	fmt.Printf("[!] Add (export SFSMASTERKEY=%s)\n", MasterKey)
+// }
 
 // Generate a random key of the provided length
 func GenerateKey(length int) []byte {
