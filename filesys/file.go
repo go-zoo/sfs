@@ -51,20 +51,19 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 // ProcessDecryptFile decrypt file
 func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	filepath := path + "/" + filename
+
 	file, err := os.Open(filepath)
 	if err != nil || file == nil {
 		panic(err)
 	}
-	fs, _ := file.Stat()
 
-	meta, err := storage.FindMeta(filename)
-	if err != nil {
-		panic(err)
-	}
+	fs, _ := file.Stat()
+	fmt.Println("META =>", filename)
+	meta := storage.FindMeta(filename)
 
 	defer func() {
 		file.Close()
-		err = os.Remove(path + "/" + meta.EncodeName)
+		err = os.Remove(filepath)
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +76,7 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	}
 
 	restFile := crypt.DecryptByte(meta.Key, data)
-	err = ioutil.WriteFile(meta.OriginalName, restFile, os.ModePerm)
+	err = ioutil.WriteFile(path+"/"+meta.OriginalName, restFile, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
