@@ -1,3 +1,7 @@
+export SFSMASTERKEY="oskdghetyahsgdte"
+
+rm -rf test
+
 mkdir test
 echo "random file 1" > test/file1.txt
 echo "random test file2" > test/file2.log

@@ -28,6 +28,9 @@ func ReadFromDb(key string) (proto.Message, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//data = crypt.DecryptByte(crypt.MasterKey, data)
+
 	meta := &pb.Meta{}
 	err = proto.Unmarshal(data, meta)
 	if err != nil {
@@ -53,5 +56,6 @@ func SaveToDb(key string, pbm proto.Message) error {
 	if err != nil {
 		return err
 	}
+	//data = crypt.EncryptByte(crypt.MasterKey, data)
 	return bolt.Add([]byte(key), data)
 }
