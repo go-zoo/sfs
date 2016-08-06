@@ -78,7 +78,7 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	}
 
 	restFile := crypt.DecryptByte(meta.Key, data)
-	err = ioutil.WriteFile(meta.OriginalName, restFile, os.ModePerm)
+	err = ioutil.WriteFile(meta.OriginalName, restFile, meta.FileMode)
 	if err != nil {
 		panic(err)
 	}

@@ -15,12 +15,13 @@ import (
 
 // Meta store informations about a file
 type Meta struct {
-	OriginalName string   `json:"orgname"`
-	EncodeName   string   `json:"encname"`
-	Length       int64    `json:"length"`
-	Key          []byte   `json:"key"`
-	Platform     Platform `json:"platform"`
-	StorePath    string   `json:"store"`
+	OriginalName string      `json:"orgname"`
+	EncodeName   string      `json:"encname"`
+	Length       int64       `json:"length"`
+	FileMode     os.FileMode `json:"filemode"`
+	Key          []byte      `json:"key"`
+	Platform     Platform    `json:"platform"`
+	StorePath    string      `json:"store"`
 }
 
 var conf string
@@ -64,6 +65,7 @@ func NewMeta(key []byte, file *os.File) (Meta, error) {
 		OriginalName: file.Name(),
 		EncodeName:   crypt.EncryptStrBase64(key, file.Name()),
 		Length:       fileStat.Size(),
+		FileMode:     fileStat.Mode(),
 		Key:          key,
 		Platform:     Platform{},
 		StorePath:    "",
