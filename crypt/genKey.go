@@ -22,7 +22,7 @@ func init() {
 	MasterKey = GenerateKey(32)
 	fmt.Println("[!] MasterKey not found !")
 	fmt.Println("[!] SFS have generated one for you.")
-	fmt.Printf("[!] Add ( export SFSMASTERKEY=%x )\n", MasterKey)
+	fmt.Printf("[+++] Add ( export SFSMASTERKEY=%x ) [+++]\n", MasterKey)
 }
 
 // Generate a random key of the provided length
