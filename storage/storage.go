@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	"github.com/go-zoo/sfs/crypt"
 
@@ -14,16 +15,22 @@ import (
 
 // Meta store informations about a file
 type Meta struct {
-	OriginalName string     `json:"orgname"`
-	EncodeName   string     `json:"encname"`
-	Length       int64      `json:"length"`
-	Key          []byte     `json:"key"`
-	Platform     []Platform `json:"platform"`
-	StorePath    string     `json:"store"`
+	OriginalName string   `json:"orgname"`
+	EncodeName   string   `json:"encname"`
+	Length       int64    `json:"length"`
+	Key          []byte   `json:"key"`
+	Platform     Platform `json:"platform"`
+	StorePath    string   `json:"store"`
 }
 
 var conf string
-var metas map[string]Meta
+
+var metas = struct {
+	sync.RWMutex
+	m map[string]Meta
+}{
+	m: make(map[string]Meta),
+}
 
 func init() {
 	exp, err := osext.ExecutableFolder()
@@ -32,7 +39,6 @@ func init() {
 	}
 	conf = exp + "/sfs.conf"
 
-	metas = make(map[string]Meta)
 	data, err := ioutil.ReadFile(conf)
 	if err != nil {
 		d, _ := json.Marshal(make(map[string]interface{}))
@@ -59,10 +65,12 @@ func NewMeta(key []byte, file *os.File) (Meta, error) {
 		EncodeName:   crypt.EncryptStrBase64(key, file.Name()),
 		Length:       fileStat.Size(),
 		Key:          key,
-		Platform:     []Platform{},
+		Platform:     Platform{},
 		StorePath:    "",
 	}
-	metas[m.EncodeName] = m
+	metas.Lock()
+	metas.m[m.EncodeName] = m
+	metas.Unlock()
 	writeConf()
 	return m, nil
 }
@@ -77,17 +85,19 @@ func (m *Meta) PrintMeta() {
 
 // FindMeta retrieve Meta info from the sfs.conf file
 func FindMeta(encodeName string) (Meta, error) {
-	if metas[encodeName].EncodeName != "" {
-		fmt.Println(metas[encodeName].OriginalName)
-		return metas[encodeName], nil
+	if metas.m[encodeName].EncodeName != "" {
+		fmt.Println(metas.m[encodeName].OriginalName)
+		return metas.m[encodeName], nil
 	}
 	return Meta{}, errors.New("Meta not found")
 }
 
 // DeleteMeta remove old encryption data
 func DeleteMeta(encodeName string) error {
-	if metas[encodeName].EncodeName != "" {
-		delete(metas, metas[encodeName].EncodeName)
+	if metas.m[encodeName].EncodeName != "" {
+		metas.Lock()
+		delete(metas.m, metas.m[encodeName].EncodeName)
+		metas.Unlock()
 		writeConf()
 		return nil
 	}
@@ -95,7 +105,9 @@ func DeleteMeta(encodeName string) error {
 }
 
 func writeConf() {
-	data, err := json.MarshalIndent(metas, "", "  ")
+	metas.Lock()
+	data, err := json.MarshalIndent(metas.m, "", "  ")
+	metas.Unlock()
 	if err != nil {
 		panic(err)
 	}

@@ -11,14 +11,15 @@ import (
 )
 
 // ProcessCryptFile encrypt file
-func ProcessCryptFile(filename string, wg *sync.WaitGroup) {
-	file, err := os.Open(filename)
+func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
+	filepath := path + "/" + filename
+	file, err := os.Open(filepath)
 	if err != nil || file == nil {
 		panic(err)
 	}
 	defer func() {
 		file.Close()
-		err = os.Remove(filename)
+		err = os.Remove(filepath)
 		if err != nil {
 			panic(err)
 		}
@@ -39,7 +40,7 @@ func ProcessCryptFile(filename string, wg *sync.WaitGroup) {
 	if cryptoFile != nil {
 		fmt.Printf("[+] %s Encrypted successfuly !\n", meta.OriginalName)
 	}
-	err = ioutil.WriteFile(meta.EncodeName, cryptoFile, os.ModePerm)
+	err = ioutil.WriteFile(path+"/"+meta.EncodeName, cryptoFile, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
@@ -48,24 +49,26 @@ func ProcessCryptFile(filename string, wg *sync.WaitGroup) {
 }
 
 // ProcessDecryptFile decrypt file
-func ProcessDecryptFile(filename string, wg *sync.WaitGroup) {
-	file, err := os.Open(filename)
+func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
+	filepath := path + "/" + filename
+	file, err := os.Open(filepath)
 	if err != nil || file == nil {
 		panic(err)
 	}
 	fs, _ := file.Stat()
-	defer func() {
-		file.Close()
-		err = os.Remove(filename)
-		if err != nil {
-			panic(err)
-		}
-	}()
 
 	meta, err := storage.FindMeta(filename)
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		file.Close()
+		err = os.Remove(path + "/" + meta.EncodeName)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	var data = make([]byte, fs.Size())
 	_, err = file.Read(data)

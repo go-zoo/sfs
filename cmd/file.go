@@ -25,7 +25,7 @@ func encryptRun(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		for _, file := range args {
 			wg.Add(1)
-			go filesys.ProcessCryptFile(file, &wg)
+			go filesys.ProcessCryptFile("", file, &wg)
 		}
 		wg.Wait()
 	}
@@ -42,7 +42,7 @@ func decryptRun(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 	for _, file := range args {
 		wg.Add(1)
-		go filesys.ProcessDecryptFile(file, &wg)
+		go filesys.ProcessDecryptFile("", file, &wg)
 	}
 	wg.Wait()
 }
