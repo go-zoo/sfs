@@ -1,5 +1,5 @@
 #SFS
-##### Safe File Storing
+##### Safe File Storage
 
 ###Usage
 - `sfs encode`, `path/to/file` or `all` encrypt files
