@@ -47,7 +47,7 @@ func init() {
 			panic(err)
 		}
 	} else {
-		err = json.Unmarshal(data, &metas)
+		err = json.Unmarshal(data, &metas.m)
 		if err != nil {
 			panic(err)
 		}
@@ -85,8 +85,7 @@ func (m *Meta) PrintMeta() {
 
 // FindMeta retrieve Meta info from the sfs.conf file
 func FindMeta(encodeName string) (Meta, error) {
-	if metas.m[encodeName].EncodeName != "" {
-		fmt.Println(metas.m[encodeName].OriginalName)
+	if metas.m[encodeName].Key != nil {
 		return metas.m[encodeName], nil
 	}
 	return Meta{}, errors.New("Meta not found")
@@ -94,8 +93,8 @@ func FindMeta(encodeName string) (Meta, error) {
 
 // DeleteMeta remove old encryption data
 func DeleteMeta(encodeName string) error {
+	metas.Lock()
 	if metas.m[encodeName].EncodeName != "" {
-		metas.Lock()
 		delete(metas.m, metas.m[encodeName].EncodeName)
 		metas.Unlock()
 		writeConf()

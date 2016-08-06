@@ -20,7 +20,7 @@ var infoCmd = &cobra.Command{
 }
 
 func infoRun(cmd *cobra.Command, args []string) {
-	m := storage.FindMeta(args[0])
+	m, err := storage.FindMeta(args[0])
 	if err != nil {
 		fmt.Println(args[0], "not found")
 		return
