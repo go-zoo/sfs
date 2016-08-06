@@ -78,17 +78,17 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	}
 
 	restFile := crypt.DecryptByte(meta.Key, data)
-	err = ioutil.WriteFile(meta.OriginalName, restFile, meta.FileMode)
+	err = ioutil.WriteFile(meta.OriginalName, restFile, os.FileMode(meta.FileMode))
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("[+] Decrypted %s successfuly !\n", meta.OriginalName)
 
-	err = storage.DeleteMeta(filename)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// err = storage.DeleteMeta(filename)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	wg.Done()
 }

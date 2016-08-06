@@ -1,4 +1,5 @@
 *.jpg
 sfs
 sfs.conf
+sfs.dat
 test/

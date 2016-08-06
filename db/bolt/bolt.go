@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/boltdb/bolt"
+	"github.com/kardianos/osext"
 )
 
 const dbname = "sfs.dat"
@@ -12,8 +13,11 @@ const dbname = "sfs.dat"
 var db *bolt.DB
 
 func init() {
-	var err error
-	db, err = bolt.Open(dbname, os.ModePerm, nil)
+	exp, err := osext.ExecutableFolder()
+	if err != nil {
+		panic(err)
+	}
+	db, err = bolt.Open(exp+"/"+dbname, os.ModePerm, nil)
 	if err != nil {
 		panic(err)
 	}

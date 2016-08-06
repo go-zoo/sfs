@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/go-zoo/sfs/db/bolt"
 	pb "github.com/go-zoo/sfs/proto"
 
 	"github.com/golang/protobuf/proto"
@@ -22,6 +23,19 @@ func ReadProtoFile(filename string) (*pb.Meta, error) {
 	return metas, nil
 }
 
+func ReadFromDb(key string) (proto.Message, error) {
+	data, err := bolt.Get([]byte(key))
+	if err != nil {
+		return nil, err
+	}
+	var meta *pb.Meta
+	err = proto.Unmarshal(data, meta)
+	if err != nil {
+		return nil, err
+	}
+	return meta, nil
+}
+
 func WriteProtoFile(pbm proto.Message, filename string) error {
 	data, err := proto.Marshal(pbm)
 	if err != nil {
@@ -32,4 +46,12 @@ func WriteProtoFile(pbm proto.Message, filename string) error {
 		return err
 	}
 	return nil
+}
+
+func SaveToDb(key string, pbm proto.Message) error {
+	data, err := proto.Marshal(pbm)
+	if err != nil {
+		return err
+	}
+	return bolt.Add([]byte(key), data)
 }

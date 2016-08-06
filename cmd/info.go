@@ -25,5 +25,5 @@ func infoRun(cmd *cobra.Command, args []string) {
 		fmt.Println(args[0], "not found")
 		return
 	}
-	m.PrintMeta()
+	fmt.Println(m.String())
 }
