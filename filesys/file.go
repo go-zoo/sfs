@@ -83,7 +83,7 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	fmt.Printf("[+] %s Decrypted %s successfuly !\n", meta.OriginalName)
+	fmt.Printf("[+] Decrypted %s successfuly !\n", meta.OriginalName)
 
 	err = storage.DeleteMeta(filename)
 	if err != nil {
