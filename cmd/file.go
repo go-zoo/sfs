@@ -10,7 +10,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var recursive bool
+var iteration int
+
 func init() {
+	encodeCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", false, "-r")
+	encodeCmd.PersistentFlags().IntVarP(&iteration, "iteration", "i", 1, "-i [number of iteration]")
+
+	decodeCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", false, "-r")
+	decodeCmd.PersistentFlags().IntVarP(&iteration, "iteration", "i", 1, "-i [number of iteration]")
+
 	RootCmd.AddCommand(encodeCmd)
 	RootCmd.AddCommand(decodeCmd)
 }
@@ -29,12 +38,15 @@ func encryptRun(cmd *cobra.Command, args []string) {
 		fmt.Println(err)
 		return
 	}
+
 	if len(args) > 0 {
-		for _, file := range args {
-			wg.Add(1)
-			go filesys.ProcessCryptFile(wd, file, &wg)
+		for i := 0; i < iteration; i++ {
+			for _, file := range args {
+				wg.Add(1)
+				go filesys.ProcessCryptFile(wd, file, &wg)
+			}
+			wg.Wait()
 		}
-		wg.Wait()
 	}
 }
 

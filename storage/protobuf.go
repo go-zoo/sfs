@@ -57,6 +57,7 @@ func WriteToDb(key string, pbm proto.Message) error {
 		return err
 	}
 	//data = crypt.EncryptByte(crypt.MasterKey, data)
+
 	return bolt.Add([]byte(key), data)
 }
 

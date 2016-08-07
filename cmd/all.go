@@ -30,7 +30,9 @@ func encryptAllRun(cmd *cobra.Command, args []string) {
 		fmt.Println(err)
 		return
 	}
-	ProcessFileTree(wd, filesys.ProcessCryptFile)
+	for i := 0; i < iteration; i++ {
+		ProcessFileTree(wd, filesys.ProcessCryptFile)
+	}
 }
 
 var decryptAllCmd = &cobra.Command{
@@ -46,7 +48,9 @@ func decryptAllRun(cmd *cobra.Command, args []string) {
 		fmt.Println(err)
 		return
 	}
-	ProcessFileTree(wd, filesys.ProcessDecryptFile)
+	for i := 0; i < iteration; i++ {
+		ProcessFileTree(wd, filesys.ProcessDecryptFile)
+	}
 }
 
 // ProcessFileTree look recursively for files in directory
@@ -60,7 +64,9 @@ func ProcessFileTree(dirname string, process fileProcessor) {
 	if len(files) > 0 {
 		for _, file := range files {
 			if file.IsDir() {
-				ProcessFileTree(dirname+"/"+file.Name(), process)
+				if recursive {
+					ProcessFileTree(dirname+"/"+file.Name(), process)
+				}
 			} else {
 				wg.Add(1)
 				go process(dirname, file.Name(), &wg)
