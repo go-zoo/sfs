@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 
+	"github.com/go-zoo/sfs/db/bolt"
 	"github.com/go-zoo/sfs/filesys"
 
 	"github.com/spf13/cobra"
@@ -22,6 +25,33 @@ func init() {
 
 	RootCmd.AddCommand(encodeCmd)
 	RootCmd.AddCommand(decodeCmd)
+}
+
+func setPassword() {
+
+}
+
+func checkPassword() bool {
+	var password string
+	fmt.Printf("[+] Enter your password : ")
+	fmt.Scan(&password)
+
+	d, err := bolt.Get([]byte("password"))
+	if err != nil {
+		return false
+	}
+
+	encoPassword := fmt.Sprintf("%x", d)
+
+	h := md5.New()
+	io.WriteString(h, password)
+	password = fmt.Sprintf("%x", h.Sum(nil))
+
+	if encoPassword != password {
+		return false
+	}
+
+	return true
 }
 
 var encodeCmd = &cobra.Command{
@@ -58,6 +88,10 @@ var decodeCmd = &cobra.Command{
 }
 
 func decryptRun(cmd *cobra.Command, args []string) {
+	if !checkPassword() {
+		fmt.Println("[!] Invalid Password")
+		return
+	}
 	var wg sync.WaitGroup
 	wd, err := os.Getwd()
 	if err != nil {

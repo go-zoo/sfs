@@ -43,6 +43,10 @@ var decryptAllCmd = &cobra.Command{
 }
 
 func decryptAllRun(cmd *cobra.Command, args []string) {
+	if !checkPassword() {
+		fmt.Println("[!] Invalid Password")
+		return
+	}
 	wd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)

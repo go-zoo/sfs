@@ -1,10 +1,14 @@
 package crypt
 
 import (
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
+
+	"github.com/go-zoo/sfs/db/bolt"
 )
 
 var MasterKey []byte
@@ -20,9 +24,24 @@ func init() {
 		return
 	}
 	MasterKey = GenerateKey(32)
+
+	var password string
 	fmt.Println("[!] MasterKey not found !")
+	fmt.Printf("[+] Enter a password : ")
+	fmt.Scan(&password)
+	err := setPassword(password)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("[!] SFS have generated one for you.")
 	fmt.Printf("[+++] Add ( export SFSMASTERKEY=%x ) [+++]\n", MasterKey)
+}
+
+func setPassword(password string) error {
+	h := md5.New()
+	io.WriteString(h, password)
+
+	return bolt.Add([]byte("password"), h.Sum(nil))
 }
 
 // Generate a random key of the provided length

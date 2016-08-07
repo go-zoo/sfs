@@ -1,4 +1,4 @@
-export SFSMASTERKEY="dddjjjhhhsssgggeoskdghetyahsgdtf"
+unset SFSMASTERKEY
 
 rm sfs.dat
 rm -rf test
