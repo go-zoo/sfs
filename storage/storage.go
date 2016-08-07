@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"crypto/md5"
 	"errors"
+	"fmt"
+	"io"
 	"os"
 
-	"github.com/go-zoo/sfs/crypt"
 	pb "github.com/go-zoo/sfs/proto"
 )
 
@@ -27,9 +29,12 @@ func NewMeta(key []byte, file *os.File) (pb.Meta, error) {
 	if err != nil || fileStat.Size() == 0 {
 		return pb.Meta{}, errors.New("Invalid File")
 	}
+	h := md5.New()
+	io.WriteString(h, file.Name())
+
 	m := pb.Meta{
 		OriginalName: file.Name(),
-		EncodeName:   crypt.EncryptStrBase64(key, file.Name()),
+		EncodeName:   fmt.Sprintf("%x", h.Sum(nil)),
 		Length:       fileStat.Size(),
 		FileMode:     uint32(fileStat.Mode()),
 		Key:          key,
