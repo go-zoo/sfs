@@ -23,6 +23,7 @@ func ReadFromFile(filename string) (*pb.Meta, error) {
 	return metas, nil
 }
 
+// ReadFromDb read get the message from the db.
 func ReadFromDb(key string) (proto.Message, error) {
 	data, err := bolt.Get([]byte(key))
 	if err != nil {
@@ -39,6 +40,7 @@ func ReadFromDb(key string) (proto.Message, error) {
 	return meta, nil
 }
 
+// WriteToFile write the passed message to the config file.
 func WriteToFile(pbm proto.Message, filename string) error {
 	data, err := proto.Marshal(pbm)
 	if err != nil {
@@ -51,6 +53,7 @@ func WriteToFile(pbm proto.Message, filename string) error {
 	return nil
 }
 
+// WriteToDb write the passed message to the db.
 func WriteToDb(key string, pbm proto.Message) error {
 	data, err := proto.Marshal(pbm)
 	if err != nil {
@@ -61,6 +64,7 @@ func WriteToDb(key string, pbm proto.Message) error {
 	return bolt.Add([]byte(key), data)
 }
 
+// DelFromDb delete the key entry from the db.
 func DelFromDb(key string) error {
 	return bolt.Del([]byte(key))
 }

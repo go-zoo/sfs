@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// EncryptByte encrypt the data with the provided key.
 func EncryptByte(key []byte, data []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -40,6 +41,7 @@ func unpadding(src []byte) []byte {
 	return src[:(length - unpad)]
 }
 
+// DecryptByte decrypt the passed data with the provided key.
 func DecryptByte(key []byte, ciphertext []byte) []byte {
 	block, err := aes.NewCipher(key)
 	if err != nil {

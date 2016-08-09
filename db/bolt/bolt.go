@@ -23,6 +23,7 @@ func init() {
 	}
 }
 
+// Add add entry to db.
 func Add(key []byte, value []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("meta"))
@@ -35,6 +36,7 @@ func Add(key []byte, value []byte) error {
 	return err
 }
 
+// Del delete the entry to db.
 func Del(key []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		err := tx.Bucket([]byte("meta")).Delete(key)
@@ -46,6 +48,7 @@ func Del(key []byte) error {
 	return err
 }
 
+// Get find and return the passed key value from the db.
 func Get(key []byte) ([]byte, error) {
 	var data []byte
 	err := db.Update(func(tx *bolt.Tx) error {

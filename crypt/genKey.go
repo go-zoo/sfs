@@ -9,6 +9,7 @@ import (
 	"github.com/go-zoo/sfs/db/bolt"
 )
 
+// MasterKey is the used to encrypt everything ...
 var MasterKey []byte
 
 func init() {
@@ -46,17 +47,19 @@ func setPassword(password string) error {
 	return bolt.Add([]byte("password"), h.Sum(nil))
 }
 
-// Generate a random key of the provided length
+// GenerateKey a random key of the provided length
 func GenerateKey(length int) []byte {
 	key := make([]byte, length)
 	rand.Read(key)
 	return key
 }
 
+// EncodeWithMaster encode a key with MasterKey encoding it.
 func EncodeWithMaster(key []byte, data []byte) []byte {
 	return EncryptByte(MasterKey, EncryptByte(key, data))
 }
 
+// DecodeWithMaster decode the key with the MasterKey
 func DecodeWithMaster(key []byte, data []byte) []byte {
 	return DecryptByte(key, DecryptByte(MasterKey, data))
 }

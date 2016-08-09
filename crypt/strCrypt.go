@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// EncryptStr encrypt string with the provided key.
 func EncryptStr(key []byte, text string) string {
 	plaintext := []byte(text)
 
@@ -28,6 +29,7 @@ func EncryptStr(key []byte, text string) string {
 	return string(ciphertext)
 }
 
+// EncryptStrBase64  encrypt base64 string with the provided key.
 func EncryptStrBase64(key []byte, text string) string {
 	plaintext := []byte(text)
 
@@ -48,6 +50,7 @@ func EncryptStrBase64(key []byte, text string) string {
 	return base64.URLEncoding.EncodeToString(ciphertext)
 }
 
+// DecryptStr decrypt string with the provided key.
 func DecryptStr(key []byte, cryptoText string) string {
 	ciphertext := []byte(cryptoText)
 
@@ -69,6 +72,7 @@ func DecryptStr(key []byte, cryptoText string) string {
 	return string(ciphertext)
 }
 
+// DecryptStrBase64 decrypt base64 string with the provided key.
 func DecryptStrBase64(key []byte, cryptoText string) string {
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
 
