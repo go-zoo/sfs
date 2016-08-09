@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-zoo/sfs/db/bolt"
+
 	"github.com/kardianos/osext"
 	"github.com/spf13/cobra"
 )
@@ -30,10 +32,9 @@ func resetRun(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err = os.Unsetenv("SFSMASTERKEY") // not working ...
+	err = bolt.Del([]byte("MASTERKEY"))
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	fmt.Println("[+] Configurations have been reset!")
 }

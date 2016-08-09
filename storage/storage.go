@@ -8,17 +8,18 @@ import (
 	"os"
 
 	pb "github.com/go-zoo/sfs/proto"
+	"github.com/go-zoo/sfs/storage/platforms"
 )
 
 // Meta store informations about a file
 type Meta struct {
-	OriginalName string   `json:"orgname"`
-	EncodeName   string   `json:"encname"`
-	Length       int64    `json:"length"`
-	FileMode     uint32   `json:"filemode"`
-	Key          []byte   `json:"key"`
-	Platform     Platform `json:"platform"`
-	StorePath    string   `json:"store"`
+	OriginalName string             `json:"orgname"`
+	EncodeName   string             `json:"encname"`
+	Length       int64              `json:"length"`
+	FileMode     uint32             `json:"filemode"`
+	Key          []byte             `json:"key"`
+	Platform     platforms.Platform `json:"platform"`
+	StorePath    string             `json:"store"`
 }
 
 var conf string
@@ -65,6 +66,3 @@ func FindMeta(encodeName string) (*pb.Meta, error) {
 func DeleteMeta(encodeName string) error {
 	return DelFromDb(encodeName)
 }
-
-// Platform is not implemented
-type Platform struct{}

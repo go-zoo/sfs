@@ -1,5 +1,5 @@
-package platform
+package platforms
 
 type Platform struct {
-	Name string,
+	Name string
 }
