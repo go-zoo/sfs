@@ -1,5 +1,7 @@
 unset SFSMASTERKEY
 
+go build
+
 rm sfs.dat
 rm -rf test
 

@@ -3,10 +3,8 @@ package crypt
 import (
 	"crypto/md5"
 	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/go-zoo/sfs/db/bolt"
 )
@@ -14,27 +12,31 @@ import (
 var MasterKey []byte
 
 func init() {
-	mk := os.Getenv("SFSMASTERKEY")
-	if mk != "" {
-		var err error
-		MasterKey, err = hex.DecodeString(mk)
+	if !checkMasterKey() {
+		var password string
+		fmt.Println("[!] MasterKey not found !")
+		fmt.Printf("[+] Enter a password : ")
+		fmt.Scan(&password)
+		err := setPassword(password)
 		if err != nil {
 			panic(err)
 		}
-		return
+		fmt.Println("[!] SFS have generated one for you.")
 	}
-	MasterKey = GenerateKey(32)
+}
 
-	var password string
-	fmt.Println("[!] MasterKey not found !")
-	fmt.Printf("[+] Enter a password : ")
-	fmt.Scan(&password)
-	err := setPassword(password)
-	if err != nil {
-		panic(err)
+func checkMasterKey() bool {
+	mk, err := bolt.Get([]byte("MASTERKEY"))
+	if err != nil || mk == nil {
+		MasterKey = GenerateKey(32)
+		err = bolt.Add([]byte("MASTERKEY"), MasterKey)
+		if err != nil {
+			panic(err)
+		}
+		return false
 	}
-	fmt.Println("[!] SFS have generated one for you.")
-	fmt.Printf("[+++] Add ( export SFSMASTERKEY=%x ) [+++]\n", MasterKey)
+	MasterKey = mk
+	return true
 }
 
 func setPassword(password string) error {
