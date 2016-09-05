@@ -42,7 +42,7 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 		ss := strings.Split(meta.OriginalName, "/")
 		fmt.Printf("[+] %s Encrypted successfuly !\n", ss[len(ss)-1])
 	}
-	err = ioutil.WriteFile(path+"/"+meta.EncodeName, cryptoFile, os.ModePerm)
+	err = ioutil.WriteFile(meta.Path+"/"+meta.EncodeName, cryptoFile, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
@@ -51,25 +51,27 @@ func ProcessCryptFile(path string, filename string, wg *sync.WaitGroup) {
 }
 
 // ProcessDecryptFile decrypt file
-func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
-	filepath := path + "/" + filename
+func ProcessDecryptFile(path string, name string, wg *sync.WaitGroup) {
+	ss := strings.Split(name, "/")
+	filename := ss[len(ss)-1]
 
-	file, err := os.Open(filepath)
+	meta, err := storage.FindMeta(filename)
+	if err != nil {
+		fmt.Printf("[!] %s doesn't seems to exists or be encrypted\n", filename)
+		wg.Done()
+		return
+	}
+
+	file, err := os.Open(meta.Path + "/" + filename)
 	if err != nil || file == nil {
 		panic(err)
 	}
 
 	fs, _ := file.Stat()
-	meta, err := storage.FindMeta(filename)
-	if err != nil {
-		fmt.Printf("[!] %s doesn't seems to exists or be encrypted\n", fs.Name())
-		wg.Done()
-		return
-	}
 
 	defer func() {
 		file.Close()
-		err = os.Remove(filepath)
+		err = os.Remove(meta.Path + "/" + filename)
 		if err != nil {
 			panic(err)
 		}
@@ -83,12 +85,12 @@ func ProcessDecryptFile(path string, filename string, wg *sync.WaitGroup) {
 	}
 
 	restFile := crypt.DecodeWithMaster(meta.Key, data)
-	err = ioutil.WriteFile(meta.OriginalName, restFile, os.FileMode(meta.FileMode))
+	err = ioutil.WriteFile(meta.Path+"/"+meta.OriginalName, restFile, os.FileMode(meta.FileMode))
 	if err != nil {
 		panic(err)
 	}
-	ss := strings.Split(meta.OriginalName, "/")
-	fmt.Printf("[+] Decrypted %s successfuly !\n", ss[len(ss)-1])
+
+	fmt.Printf("[+] Decrypted %s successfuly !\n", meta.OriginalName)
 
 	err = storage.DeleteMeta(filename)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	pb "github.com/go-zoo/sfs/proto"
 	"github.com/go-zoo/sfs/storage/platforms"
@@ -15,6 +16,7 @@ import (
 type Meta struct {
 	OriginalName string             `json:"orgname"`
 	EncodeName   string             `json:"encname"`
+	Path         string             `json:"path"`
 	Length       int64              `json:"length"`
 	FileMode     uint32             `json:"filemode"`
 	Key          []byte             `json:"key"`
@@ -32,16 +34,19 @@ func NewMeta(key []byte, file *os.File) (pb.Meta, error) {
 	}
 	h := md5.New()
 	io.WriteString(h, file.Name())
+	pathTokens := strings.Split(file.Name(), "/")
 
 	m := pb.Meta{
-		OriginalName: file.Name(),
+		OriginalName: fileStat.Name(),
 		EncodeName:   fmt.Sprintf("%x", h.Sum(nil)),
+		Path:         strings.Join(pathTokens[:len(pathTokens)-1], "/"),
 		Length:       fileStat.Size(),
 		FileMode:     uint32(fileStat.Mode()),
 		Key:          key,
-		//Platform:     Platform{},
-		StorePath: "",
+		StorePath:    "",
 	}
+
+	fmt.Println(m.String())
 
 	return m, WriteToDb(m.EncodeName, &m)
 }

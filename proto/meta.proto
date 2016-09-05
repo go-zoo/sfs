@@ -3,8 +3,9 @@ syntax = "proto3";
 message Meta {
 	string original_name = 1;
 	string encode_name = 2;
-	int64  length = 3;
-	uint32  file_mode = 4;
-	bytes  key = 5;
-	string store_path = 6;
+	string path = 3;
+	int64  length = 4;
+	uint32  file_mode = 5;
+	bytes  key = 6;
+	string store_path = 7;
 }
