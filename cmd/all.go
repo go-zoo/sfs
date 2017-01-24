@@ -65,7 +65,7 @@ func ProcessFileTree(dirname string, process fileProcessor) {
 		fmt.Println(err)
 		return
 	}
-	if len(files) > 0 {
+	if len(files)-1 > 0 {
 		for _, file := range files {
 			if file.IsDir() {
 				if recursive {
