@@ -1,7 +1,7 @@
-#SFS
+# SFS
 ##### Safe File Storage
 
-###Usage
+### Usage
 - `sfs encode`, `path/to/file` or `all` encrypt files
 - `sfs decode`, `path/to/file` or `all` decrypt files
 - `sfs info`, `'filename'` get the infos of a file
